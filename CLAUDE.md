@@ -95,11 +95,11 @@ agent-eval --help
 
 ## Build plan (phased; stop for review at the end of each)
 
-- **Scaffold** ← *you are here*: CLAUDE.md, repo skeleton, core Pydantic models. **STOP for review.**
-- **Phase 1** — Agent runner: minimal loop with 2–3 tools, full trajectory capture.
-- **Phase 2** — Task suite + deterministic assertions.
-- **Phase 3** — LLM judge (structured, low-variance).
-- **Phase 4** — SQLite persistence + version regression comparison.
+- **Scaffold** ✅ — CLAUDE.md, repo skeleton, core Pydantic models.
+- **Phase 1** ✅ — Agent runner: async loop with calculator/search/read_file, full trajectory capture.
+- **Phase 2** ✅ — Versioned task suite + deterministic assertions (incl. an expected-fail task).
+- **Phase 3** ✅ — LLM judge: Sonnet 4.6 @ temp 0, structured output, 3-dimension rubric; attaches to RunResult alongside deterministic results.
+- **Phase 4** ← *next*: SQLite persistence + version regression comparison.
 - **Phase 5** — Failure attribution + pandas reporting + typer CLI.
 
 ## Resolved decisions

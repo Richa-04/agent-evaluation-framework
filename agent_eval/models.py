@@ -218,6 +218,12 @@ class JudgeScore(BaseModel):
 
     judge_model: str = Field(..., description="Model id used for the judge.")
     judge_version: str = Field(default="v1", description="Judge prompt/rubric version.")
+    temperature: float | None = Field(
+        default=None, description="Sampling temperature used for the judge (pinned for repeatability)."
+    )
+    raw_response: dict[str, Any] | None = Field(
+        default=None, description="Raw structured payload returned by the judge, logged for reproducibility."
+    )
 
     @property
     def average(self) -> float:

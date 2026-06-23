@@ -12,6 +12,7 @@ one client serve a whole multi-task suite deterministically.
 
 from __future__ import annotations
 
+import json
 from types import SimpleNamespace
 from typing import Any
 
@@ -105,6 +106,34 @@ class ScriptedClient:
                 self._counters[key] = idx + 1
                 return scripts[idx]
         raise AssertionError(f"ScriptedClient: no route matched user text {user_text!r}")
+
+
+def json_message(payload: Any, *, stop_reason: str = "end_turn") -> SimpleNamespace:
+    """A response whose single text block is ``json.dumps(payload)`` — mimics a
+    structured-output (json_schema) response from the judge."""
+    return SimpleNamespace(
+        content=[text_block(json.dumps(payload))],
+        stop_reason=stop_reason,
+        usage=make_usage(),
+    )
+
+
+class OneShotClient:
+    """A fake client that returns the same response for every create() call and
+    records the kwargs of each call (for asserting on the request)."""
+
+    def __init__(self, response: Any) -> None:
+        self._response = response
+        self.calls: list[dict[str, Any]] = []
+        self.messages = self._Messages(self)
+
+    class _Messages:
+        def __init__(self, client: "OneShotClient") -> None:
+            self._client = client
+
+        async def create(self, **kwargs: Any) -> Any:
+            self._client.calls.append(kwargs)
+            return self._client._response
 
 
 class RaisingClient:
