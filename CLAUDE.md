@@ -99,8 +99,8 @@ agent-eval --help
 - **Phase 1** ✅ — Agent runner: async loop with calculator/search/read_file, full trajectory capture.
 - **Phase 2** ✅ — Versioned task suite + deterministic assertions (incl. an expected-fail task).
 - **Phase 3** ✅ — LLM judge: Sonnet 4.6 @ temp 0, structured output, 3-dimension rubric; attaches to RunResult alongside deterministic results.
-- **Phase 4** ← *next*: SQLite persistence + version regression comparison.
-- **Phase 5** — Failure attribution + pandas reporting + typer CLI.
+- **Phase 4** ✅ — SQLite persistence (RunStore, version labels) + version regression comparison (per-dimension deltas, deterministic pass/fail changes, regressed/improved classification).
+- **Phase 5** ← *next*: Failure attribution + pandas reporting + typer CLI.
 
 ## Resolved decisions
 
