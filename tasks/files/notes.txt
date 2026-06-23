@@ -1,0 +1,8 @@
+Internal project notes
+=======================
+
+Project codename: Bluebird
+Owner: Platform team
+Status: in progress
+
+(Used by the read_file task in the evaluation suite.)

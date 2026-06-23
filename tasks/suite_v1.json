@@ -1,0 +1,62 @@
+{
+  "suite_version": "v1",
+  "tasks": [
+    {
+      "id": "calc-multiply",
+      "prompt": "What is 47 * 19? Use the calculator tool to compute it, then state the result.",
+      "available_tools": ["calculator"],
+      "expected_outcome": "893",
+      "max_steps": 5,
+      "tags": ["calculator", "single-tool"],
+      "deterministic_checks": [
+        {"id": "tool", "type": "tool_invoked", "description": "calculator was used", "tool_name": "calculator"},
+        {"id": "arg", "type": "tool_arg_equals", "description": "calculator called with the right expression", "tool_name": "calculator", "arg_name": "expression", "expected": "47 * 19"},
+        {"id": "answer", "type": "answer_contains", "description": "final answer contains 893", "expected": "893"},
+        {"id": "done", "type": "terminal_state", "description": "ended in completed state", "expected": "completed"}
+      ]
+    },
+    {
+      "id": "search-capital",
+      "prompt": "Use the search tool to find the capital of France, then state it.",
+      "available_tools": ["search"],
+      "expected_outcome": "Paris",
+      "max_steps": 5,
+      "tags": ["search", "single-tool"],
+      "deterministic_checks": [
+        {"id": "tool", "type": "tool_invoked", "description": "search was used", "tool_name": "search"},
+        {"id": "answer", "type": "answer_contains", "description": "final answer mentions Paris", "expected": "Paris"},
+        {"id": "done", "type": "terminal_state", "description": "ended in completed state", "expected": "completed"}
+      ]
+    },
+    {
+      "id": "read-codename",
+      "prompt": "Read the file notes.txt and tell me the project codename.",
+      "available_tools": ["read_file"],
+      "expected_outcome": "Bluebird",
+      "max_steps": 5,
+      "tags": ["read_file", "single-tool"],
+      "deterministic_checks": [
+        {"id": "tool", "type": "tool_invoked", "description": "read_file was used", "tool_name": "read_file"},
+        {"id": "answer", "type": "answer_contains", "description": "final answer mentions Bluebird", "expected": "Bluebird"},
+        {"id": "done", "type": "terminal_state", "description": "ended in completed state", "expected": "completed"}
+      ]
+    },
+    {
+      "id": "convert-speed-of-light",
+      "prompt": "Search for the speed of light, then use the calculator to express it in km/s (divide by 1000) and report the value.",
+      "available_tools": ["search", "calculator"],
+      "expected_outcome": "299792.458 km/s",
+      "max_steps": 6,
+      "tags": ["multi-tool", "expected_fail"],
+      "metadata": {
+        "note": "Two-step task: it requires BOTH search AND the calculator. A common agent failure is to answer from memory with a rounded value and skip the calculator. The deterministic checks below catch exactly that."
+      },
+      "deterministic_checks": [
+        {"id": "search", "type": "tool_invoked", "description": "search was used", "tool_name": "search"},
+        {"id": "calc", "type": "tool_invoked", "description": "calculator was used for the conversion", "tool_name": "calculator"},
+        {"id": "answer", "type": "answer_contains", "description": "final answer contains the precise value 299792.458", "expected": "299792.458"},
+        {"id": "done", "type": "terminal_state", "description": "ended in completed state", "expected": "completed"}
+      ]
+    }
+  ]
+}
