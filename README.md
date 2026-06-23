@@ -8,8 +8,22 @@ Deterministic checks reduce judge variance — the judge is never trusted alone.
 
 ## Status
 
-Scaffold complete: project layout, core Pydantic v2 models, config/`.env` handling.
-Feature phases (agent runner → task suite → judge → persistence → reporting) follow.
+All phases complete: agent runner + trajectory capture → versioned task suite +
+deterministic assertions → LLM judge → SQLite persistence + regression tracking →
+failure attribution + pandas reporting + CLI.
+
+## CLI
+
+```bash
+agent-eval run     --db runs.sqlite --suite tasks/suite_v1.json --tag baseline  # real API
+agent-eval versions --db runs.sqlite
+agent-eval report  --db runs.sqlite --label <version-label>
+agent-eval compare --db runs.sqlite --label-a <before> --label-b <after>
+```
+
+`run` calls the real API (needs `ANTHROPIC_API_KEY`); `versions`/`report`/`compare`
+work offline on the stored SQLite data. See `examples/` for offline, mocked demos
+of each phase.
 
 ## Stack
 
