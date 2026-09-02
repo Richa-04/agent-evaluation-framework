@@ -6,7 +6,7 @@ Commands:
   report    failure attribution + pandas summary for one stored version
   compare   per-dimension + deterministic regression comparison of two versions
 
-`run` calls the real Anthropic API (agent on Opus 4.8, judge on Sonnet 4.6) and
+`run` calls the real Anthropic API (agent on Opus 5, judge on Sonnet 5) and
 needs ANTHROPIC_API_KEY. `versions` / `report` / `compare` operate purely on the
 stored SQLite data and need no API key.
 """

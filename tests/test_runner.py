@@ -22,7 +22,7 @@ from .fakes import (
     make_usage,
 )
 
-CONFIG = RunConfig(model="claude-opus-4-8", thinking="adaptive", max_steps=10)
+CONFIG = RunConfig(model="claude-opus-5", thinking="adaptive", max_steps=10)
 
 
 def _run(task, tools, client):
@@ -197,15 +197,17 @@ def test_client_exception_yields_error_state() -> None:
 
 
 def test_temperature_only_sent_when_set() -> None:
-    # Opus-style config: no temperature -> not in kwargs. Sonnet-style: present.
+    # Plumbing test for RunConfig.temperature: current-gen models (opus-5) leave it
+    # None so it's omitted; an older temperature-accepting model (sonnet-4-6) sets it
+    # and the runner forwards it. (Uses a fake client, so no real API constraint.)
     task = Task(id="cfg", prompt="config check", available_tools=["calculator"], max_steps=2)
 
-    opus = ScriptedClient({"config check": [assistant_text("done")]})
-    asyncio.run(run_agent(task, [CalculatorTool()], opus, RunConfig(model="claude-opus-4-8")))
-    assert "temperature" not in opus.calls[0]
+    current_gen = ScriptedClient({"config check": [assistant_text("done")]})
+    asyncio.run(run_agent(task, [CalculatorTool()], current_gen, RunConfig(model="claude-opus-5")))
+    assert "temperature" not in current_gen.calls[0]
 
-    sonnet = ScriptedClient({"config check": [assistant_text("done")]})
+    older = ScriptedClient({"config check": [assistant_text("done")]})
     asyncio.run(
-        run_agent(task, [CalculatorTool()], sonnet, RunConfig(model="claude-sonnet-4-6", temperature=0.0))
+        run_agent(task, [CalculatorTool()], older, RunConfig(model="claude-sonnet-4-6", temperature=0.0))
     )
-    assert sonnet.calls[0]["temperature"] == 0.0
+    assert older.calls[0]["temperature"] == 0.0

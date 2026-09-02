@@ -107,7 +107,7 @@ def test_judge_score_average() -> None:
         tool_selection=DimensionScore(score=4, rationale="ok"),
         efficiency=DimensionScore(score=3, rationale="meh"),
         overall_rationale="solid",
-        judge_model="claude-opus-4-8",
+        judge_model="claude-opus-5",
     )
     assert js.average == pytest.approx(4.0)
 
@@ -132,7 +132,7 @@ def test_run_result_roundtrip_and_deterministic_passed() -> None:
                 detail="found '4'",
             ),
         ],
-        config=RunConfig(model="claude-opus-4-8", effort="high", thinking="adaptive"),
+        config=RunConfig(model="claude-opus-5", effort="high", thinking="adaptive"),
     )
     assert result.deterministic_passed is True
 
@@ -152,11 +152,11 @@ def test_deterministic_passed_false_when_any_check_fails() -> None:
             CheckResult(check_id="c1", type=CheckType.TOOL_INVOKED, description="x", passed=True),
             CheckResult(check_id="c2", type=CheckType.ANSWER_CONTAINS, description="y", passed=False),
         ],
-        config=RunConfig(model="claude-opus-4-8"),
+        config=RunConfig(model="claude-opus-5"),
     )
     assert result.deterministic_passed is False
 
 
 def test_extra_fields_forbidden() -> None:
     with pytest.raises(ValidationError):
-        RunConfig(model="claude-opus-4-8", bogus_field=123)  # type: ignore[call-arg]
+        RunConfig(model="claude-opus-5", bogus_field=123)  # type: ignore[call-arg]

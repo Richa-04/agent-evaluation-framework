@@ -28,7 +28,9 @@ of each phase.
 ## Stack
 
 Python 3.11+ · AsyncIO · `anthropic` · Pydantic v2 · SQLite · pandas · pytest · typer.
-Model: `claude-opus-4-8` (Claude Opus 4.8) for both the agent under test and the judge.
+Models: agent under test on `claude-opus-5` (Claude Opus 5); judge on `claude-sonnet-5`
+(Claude Sonnet 5). Current-gen models reject `temperature`, so the judge's determinism
+comes from structured output + low effort.
 
 ## Quick start
 

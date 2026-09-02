@@ -219,7 +219,9 @@ class JudgeScore(BaseModel):
     judge_model: str = Field(..., description="Model id used for the judge.")
     judge_version: str = Field(default="v1", description="Judge prompt/rubric version.")
     temperature: float | None = Field(
-        default=None, description="Sampling temperature used for the judge (pinned for repeatability)."
+        default=None,
+        description="Judge sampling temperature if the model accepted one; None on "
+        "current-gen models (Opus 5 / Sonnet 5) which reject sampling params.",
     )
     raw_response: dict[str, Any] | None = Field(
         default=None, description="Raw structured payload returned by the judge, logged for reproducibility."
@@ -255,7 +257,7 @@ class RunConfig(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     model: str
-    # Optional: only sent to models that accept sampling params (not Opus 4.8).
+    # Optional: only sent to models that accept sampling params (not Opus 5 / Sonnet 5).
     temperature: float | None = None
     effort: str | None = None          # output_config.effort, e.g. "low"
     thinking: str | None = None        # e.g. "adaptive" or None

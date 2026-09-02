@@ -21,18 +21,20 @@ Deterministic assertions exist to reduce judge variance. We never rely on the ju
 
 ## Model
 
-Confirmed against Anthropic's current docs.
+Confirmed against Anthropic's current docs (2026 generation).
 
-- **Agent under test:** **Claude Opus 4.8**, `claude-opus-4-8` (1M context, 128K max output) — most capable widely released model.
-- **Judge:** **Claude Sonnet 4.6**, `claude-sonnet-4-6`, pinned at **`temperature=0`** for repeatability.
+- **Agent under test:** **Claude Opus 5**, `claude-opus-5` (1M context, 128K max output) — current most-capable Opus.
+- **Judge:** **Claude Sonnet 5**, `claude-sonnet-5` — cheaper than Opus, ample for scoring; determinism from structured output + low effort.
 
-> ⚠️ **Opus 4.8 API surface:** `temperature` / `top_p` / `top_k` are removed (400 if sent),
-> and extended-thinking `budget_tokens` is removed — thinking is adaptive only
-> (`thinking={"type": "adaptive"}`). That's why the **judge runs on Sonnet 4.6** instead:
-> it accepts `temperature=0`, giving literal low-temp determinism as the brief requires.
-> The judge also returns **structured output** (`output_config.format`, the `JudgeScore`
-> schema) as a second repeatability lever. `RunConfig.temperature` is **optional and only
-> sent for models that accept it** (set for the judge, left `None` for the Opus 4.8 agent).
+> ⚠️ **Current-generation API surface (Opus 5 AND Sonnet 5):** `temperature` / `top_p` /
+> `top_k` are removed (400 if sent), and `budget_tokens` is removed — thinking is adaptive
+> only (`thinking={"type": "adaptive"}`; on Opus 5 thinking is on by default). This is a
+> change from the original design: the judge was on Sonnet **4.6** specifically because it
+> still accepted `temperature=0`. **Sonnet 5 does NOT accept `temperature`**, so that lever
+> is gone. The judge's determinism now comes from two other levers:
+> **structured output** (`output_config.format` → the `JudgeScore` json_schema) and
+> **low effort** (`output_config.effort="low"`). `RunConfig.temperature` /
+> `DEFAULT_JUDGE_TEMPERATURE` are `None` and not sent to either model.
 
 ## Folder structure
 
@@ -104,7 +106,10 @@ agent-eval --help
 
 ## Resolved decisions
 
-1. **Judge determinism vs. model choice.** Opus 4.8 can't take `temperature`.
-   **Resolved:** the judge runs on **Sonnet 4.6 at `temperature=0`** (the agent stays on
-   Opus 4.8). This gives the literal low-temperature determinism the brief asks for, with
-   structured output as a second repeatability lever.
+1. **Judge determinism vs. model choice.** Neither current-gen model accepts `temperature`.
+   **Original resolution (superseded):** judge on Sonnet 4.6 at `temperature=0`.
+   **Current resolution:** on the 2026 generation, `claude-opus-5` (agent) and
+   `claude-sonnet-5` (judge) both reject sampling params, so `temperature=0` is impossible.
+   The judge's determinism levers are now **structured output** (`output_config.format`
+   json_schema) + **low effort** (`output_config.effort="low"`); `temperature` is not sent.
+   (Verified against Anthropic docs during the Phase 3–5 audit + model bump.)

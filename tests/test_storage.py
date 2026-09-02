@@ -35,7 +35,7 @@ def _result(
     dims: tuple[int, int, int] | None,
     run_id: str = "r",
     suite_version: str = "v1",
-    model: str = "claude-opus-4-8",
+    model: str = "claude-opus-5",
 ) -> RunResult:
     judge = None
     if dims is not None:
@@ -45,7 +45,7 @@ def _result(
             tool_selection=DimensionScore(score=t, rationale="t"),
             efficiency=DimensionScore(score=e, rationale="e"),
             overall_rationale="o",
-            judge_model="claude-sonnet-4-6",
+            judge_model="claude-sonnet-5",
             temperature=0.0,
         )
     return RunResult(
@@ -117,8 +117,8 @@ def test_file_persistence_survives_reopen(tmp_path: Path) -> None:
 
 
 def test_make_version_label_captures_model_suite_timestamp() -> None:
-    label = make_version_label("claude-opus-4-8", "v1", tag="baseline")
-    assert label.startswith("claude-opus-4-8/v1/")
+    label = make_version_label("claude-opus-5", "v1", tag="baseline")
+    assert label.startswith("claude-opus-5/v1/")
     assert label.endswith("baseline")
 
 

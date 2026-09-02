@@ -20,7 +20,7 @@ from .fakes import ScriptedClient, assistant_text, assistant_tool
 SUITE_PATH = Path(__file__).resolve().parents[1] / "tasks" / "suite_v1.json"
 FILES_DIR = Path(__file__).resolve().parents[1] / "tasks" / "files"
 
-CONFIG = RunConfig(model="claude-opus-4-8", thinking="adaptive", max_tokens=2048)
+CONFIG = RunConfig(model="claude-opus-5", thinking="adaptive", max_tokens=2048)
 
 
 def _scripted_client() -> ScriptedClient:

@@ -74,7 +74,7 @@ def _build_create_kwargs(
         "messages": messages,
         "tools": tool_params,
     }
-    # Only send sampling params to models that accept them (not Opus 4.8).
+    # Only send sampling params to models that accept them (not Opus 5 / Sonnet 5).
     if config.temperature is not None:
         kwargs["temperature"] = config.temperature
     if config.thinking:

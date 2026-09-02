@@ -34,7 +34,7 @@ def _judge(g, t, e):
         tool_selection=DimensionScore(score=t, rationale="t"),
         efficiency=DimensionScore(score=e, rationale="e"),
         overall_rationale="o",
-        judge_model="claude-sonnet-4-6",
+        judge_model="claude-sonnet-5",
     )
 
 
@@ -53,7 +53,7 @@ def _result(task_id, *, det_passed, dims, tool_calls=None, terminal=TerminalStat
             CheckResult(check_id="x", type=CheckType.ANSWER_CONTAINS, description="d", passed=det_passed)
         ],
         judge_score=_judge(g, t, e),
-        config=RunConfig(model="claude-opus-4-8", suite_version="v1"),
+        config=RunConfig(model="claude-opus-5", suite_version="v1"),
         suite_version="v1",
     )
 
@@ -84,7 +84,7 @@ def _convert_fail() -> RunResult:
             CheckResult(check_id="done", type=CheckType.TERMINAL_STATE, description="completed", passed=True),
         ],
         judge_score=_judge(2, 2, 3),
-        config=RunConfig(model="claude-opus-4-8", suite_version="v1"),
+        config=RunConfig(model="claude-opus-5", suite_version="v1"),
         suite_version="v1",
     )
 

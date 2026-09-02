@@ -35,7 +35,7 @@ def _judge(g, t, e):
         tool_selection=DimensionScore(score=t, rationale="t"),
         efficiency=DimensionScore(score=e, rationale="e"),
         overall_rationale="o",
-        judge_model="claude-sonnet-4-6",
+        judge_model="claude-sonnet-5",
     )
 
 
@@ -53,7 +53,7 @@ def _run(task_id, *, steps, terminal, final_answer, check_results, judge=None, e
         ),
         deterministic_results=check_results,
         judge_score=judge,
-        config=RunConfig(model="claude-opus-4-8"),
+        config=RunConfig(model="claude-opus-5"),
     )
 
 

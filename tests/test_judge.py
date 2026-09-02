@@ -1,7 +1,8 @@
 """Phase 3 tests: the LLM judge, with the judge model MOCKED for determinism.
 
-Covers: structured-output request shape (model, temperature=0, json_schema),
-prompt contents (goal, tool arguments, rubric), parsing into a JudgeScore,
+Covers: structured-output request shape (model, no temperature on current-gen
+models, low effort, json_schema), prompt contents (goal, tool arguments, rubric),
+parsing into a JudgeScore,
 attaching the score to a RunResult without disturbing deterministic results,
 low scores for a broken trajectory, and malformed-response handling.
 """
@@ -76,17 +77,19 @@ _HIGH_VERDICT = {
 }
 
 
-def test_judge_request_shape_is_structured_and_temperature_zero() -> None:
+def test_judge_request_shape_is_structured_with_low_effort_no_temperature() -> None:
     client = OneShotClient(json_message(_HIGH_VERDICT))
     asyncio.run(judge_trajectory(TASK, _good_trajectory(), client))
 
     assert len(client.calls) == 1
     kwargs = client.calls[0]
-    assert kwargs["model"] == DEFAULT_JUDGE_MODEL == "claude-sonnet-4-6"
-    assert kwargs["temperature"] == 0.0  # pinned for repeatability
-    # Structured output to the judge schema.
+    assert kwargs["model"] == DEFAULT_JUDGE_MODEL == "claude-sonnet-5"
+    # Current-gen models reject temperature — it must NOT be sent.
+    assert "temperature" not in kwargs
+    # Structured output to the judge schema + low effort are the determinism levers.
     assert kwargs["output_config"]["format"]["type"] == "json_schema"
     assert kwargs["output_config"]["format"]["schema"] is JUDGE_OUTPUT_SCHEMA
+    assert kwargs["output_config"]["effort"] == "low"
 
 
 def test_judge_prompt_includes_goal_tool_args_and_rubric() -> None:
@@ -110,9 +113,9 @@ def test_judge_parses_structured_output_into_judgescore() -> None:
     assert score.tool_selection.score == 5
     assert score.efficiency.score == 4
     assert score.overall_rationale.startswith("Solid")
-    assert score.judge_model == "claude-sonnet-4-6"
+    assert score.judge_model == "claude-sonnet-5"
     assert score.judge_version == "v1"
-    assert score.temperature == 0.0
+    assert score.temperature is None  # not sent on current-gen models
     assert score.average == pytest.approx((5 + 5 + 4) / 3)
     # Raw response logged for reproducibility.
     assert score.raw_response == _HIGH_VERDICT
@@ -188,4 +191,4 @@ def test_judgescore_roundtrips_with_raw_response() -> None:
     score = asyncio.run(judge_trajectory(TASK, _good_trajectory(), client))
     restored = type(score).model_validate_json(score.model_dump_json())
     assert restored.raw_response == _HIGH_VERDICT
-    assert restored.temperature == 0.0
+    assert restored.temperature is None

@@ -1,10 +1,12 @@
 """The Claude-based LLM judge.
 
-Calls Sonnet 4.6 at ``temperature=0`` with **structured output** (json_schema)
-so the verdict is low-variance and always schema-valid. The 1-5 score range is
-enforced in-schema via ``enum`` (json_schema structured output does not allow
-numeric min/max constraints). The raw structured payload is logged on the
-JudgeScore for reproducibility.
+Calls Sonnet 5 with **structured output** (json_schema) and **low effort** so the
+verdict is low-variance and always schema-valid. The current model generation
+(Opus 5 / Sonnet 5) removed sampling params, so ``temperature`` is NOT sent — the
+determinism levers are structured output + low effort instead of ``temperature=0``.
+The 1-5 score range is enforced in-schema via ``enum`` (json_schema structured
+output does not allow numeric min/max constraints). The raw structured payload is
+logged on the JudgeScore for reproducibility.
 
 The judge supplements the deterministic checks — ``judge_run_result`` attaches a
 JudgeScore to a RunResult without touching its ``deterministic_results``.
@@ -61,17 +63,25 @@ def build_judge_kwargs(
     model: str,
     temperature: float | None,
     max_tokens: int,
+    effort: str | None = None,
 ) -> dict[str, Any]:
     """Construct the messages.create kwargs for a judge call (exposed for tests)."""
     system, user = build_judge_prompt(task, trajectory)
+    output_config: dict[str, Any] = {
+        "format": {"type": "json_schema", "schema": JUDGE_OUTPUT_SCHEMA}
+    }
+    # Low effort is a determinism/cost lever for the judge (a small, bounded task).
+    if effort:
+        output_config["effort"] = effort
     kwargs: dict[str, Any] = {
         "model": model,
         "max_tokens": max_tokens,
         "system": system,
         "messages": [{"role": "user", "content": user}],
-        "output_config": {"format": {"type": "json_schema", "schema": JUDGE_OUTPUT_SCHEMA}},
+        "output_config": output_config,
     }
-    # Sonnet 4.6 accepts temperature (unlike Opus 4.8) — our determinism lever.
+    # Only sent to models that still accept sampling params. Current-generation
+    # models (Opus 5 / Sonnet 5) reject temperature with a 400, so this stays None.
     if temperature is not None:
         kwargs["temperature"] = temperature
     return kwargs
@@ -85,11 +95,13 @@ async def judge_trajectory(
     model: str = _config.DEFAULT_JUDGE_MODEL,
     temperature: float | None = _config.DEFAULT_JUDGE_TEMPERATURE,
     max_tokens: int = _config.DEFAULT_JUDGE_MAX_TOKENS,
+    effort: str | None = _config.DEFAULT_JUDGE_EFFORT,
     judge_version: str = JUDGE_VERSION,
 ) -> JudgeScore:
     """Score one trajectory against the rubric and return a JudgeScore."""
     kwargs = build_judge_kwargs(
-        task, trajectory, model=model, temperature=temperature, max_tokens=max_tokens
+        task, trajectory, model=model, temperature=temperature,
+        max_tokens=max_tokens, effort=effort,
     )
     response = await client.messages.create(**kwargs)
 

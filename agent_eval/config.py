@@ -11,14 +11,18 @@ import os
 from pathlib import Path
 
 # --- Models ----------------------------------------------------------------
-# Agent under test: most capable widely released model (confirmed against docs).
-# Opus 4.8 rejects temperature/top_p/top_k and uses adaptive thinking only.
-DEFAULT_MODEL = "claude-opus-4-8"
+# Agent under test: current most-capable Opus generation (confirmed against docs).
+# claude-opus-5 runs adaptive thinking and REJECTS temperature/top_p/top_k (400).
+DEFAULT_MODEL = "claude-opus-5"
 
-# Judge: Sonnet 4.6 specifically, so we can pin temperature=0 for repeatability
-# (Opus 4.8 would reject temperature). Decision recorded in CLAUDE.md.
-DEFAULT_JUDGE_MODEL = "claude-sonnet-4-6"
-DEFAULT_JUDGE_TEMPERATURE = 0.0
+# Judge: Sonnet 5 (cheaper than Opus, ample for scoring). NOTE: unlike the older
+# Sonnet 4.6, claude-sonnet-5 also REJECTS temperature/top_p/top_k (400) — the
+# whole current generation removed sampling params. So the judge's determinism no
+# longer comes from temperature=0; it comes from (a) structured output
+# (output_config.format json_schema) and (b) low effort (output_config.effort).
+# DEFAULT_JUDGE_TEMPERATURE is therefore None (not sent). Decision recorded in CLAUDE.md.
+DEFAULT_JUDGE_MODEL = "claude-sonnet-5"
+DEFAULT_JUDGE_TEMPERATURE = None
 
 # Default token ceilings. Judge output is small; agent turns are bounded.
 DEFAULT_AGENT_MAX_TOKENS = 4096
